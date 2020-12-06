@@ -4,6 +4,7 @@ Instantly reward your members with points for posting in specific channels!
 ### Installation
 
 1. Download Python from [https://www.python.org/downloads/](https://www.python.org/downloads/)
+2. Create a bot at [https://discord.com/developers/applications/](https://discord.com/developers/applications/) (Make sure you enable all intents)
 2. Clone the repo
    ```sh
    git clone https://github.com/saucesteals/DiscordPoints.git

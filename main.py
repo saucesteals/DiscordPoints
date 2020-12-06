@@ -24,6 +24,7 @@ PointsSystem = PointsSystem.Points(client)
 @client.event
 async def on_ready():
     print(f"Ready as {str(client.user)}")
+    print(f"Invite link: https://discord.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8")
 
 
 @client.event
