@@ -11,7 +11,7 @@ Instantly reward your members with points for posting in specific channels!
    ```
 4. Install requirements
    ```sh
-   pip install -r requirements.txt
+   pip/pip3 install -r requirements.txt
    ```
 5. Fill in the template in `env.example`
 6. Rename `env.example` to `.env`

@@ -17,10 +17,27 @@ class Points:
     def add_user(self, member:discord.Member):
         self.data["guilds"][str(member.guild.id)]["members"][str(member.id)] = {'points':0, 'raffles_won':0}
         self.dump_data()
-        
+    
+    def remove_user(self, member:discord.Member=None, member_id=None, guild_id=None):
+        if member_id is None:
+            member_id = member.id
+            guild_id = member.guild.id
+
+        if str(member_id) in self.data["guilds"][str(guild_id)]["members"]:
+            del self.data["guilds"][str(guild_id)]["members"][str(member_id)]
+            self.dump_data()
+
     def add_guild(self, guild:discord.Guild):
         self.data["guilds"][str(guild.id)] = {"members":{}, "raffles":0}
         self.dump_data()
+
+    def remove_guild(self, guild:discord.Guild=None, guild_id=None):
+        if guild_id is None:
+            guild_id = guild.id
+
+        if str(guild_id) in self.data["guilds"]:
+            del self.data["guilds"][str(guild.id)]
+            self.dump_data()
 
     def __check_db__(self, member:discord.Member=None, guild:discord.Guild=None):
         if guild:
@@ -103,3 +120,14 @@ class Points:
 
     def reset_guild(self, guild:discord.Guild):
         self.add_guild(guild)
+
+    def cleanse_data(self):
+        for guild_id in self.data["guilds"]:
+            guild = self.client.get_guild(int(guild_id))
+            if guild is None:
+                self.remove_guild(guild_id=guild_id)
+                continue
+            guild_members = [str(member.id) for member in guild.members]
+            for member in self.data["guilds"][str(guild.id)]["members"]:
+                if member not in guild_members:
+                    self.remove_user(member_id=member, guild_id=guild_id)

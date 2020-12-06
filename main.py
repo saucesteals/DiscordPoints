@@ -6,9 +6,9 @@ import asyncio
 from helpers import *
 import os
 from dotenv import load_dotenv
+os.system("")
 load_dotenv()
 
-## Helpers ##
 
 ## Client Setup ##
 client = commands.Bot(command_prefix=os.getenv("PREFIX"), intents=discord.Intents.all())
@@ -20,12 +20,17 @@ client.onlyimages = True if os.getenv("ONLY_IMAGES").lower() == "true" else Fals
 ## Points System Setup ##
 PointsSystem = PointsSystem.Points(client)
 
-
 @client.event
 async def on_ready():
-    print(f"Ready as {str(client.user)}")
-    print(f"Invite link: https://discord.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8")
+    print(f"{OKCYAN}Ready as {str(client.user)}")
+    print(f"Invite link:{ENDC} {UNDERLINE}https://discord.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8{ENDC}\n")
+    PointsSystem.cleanse_data()
+    print(f"{OKGREEN}Cleansed all data!{ENDC}")
+    
 
+@client.event
+async def on_member_remove(member):
+    PointsSystem.remove_user(member)
 
 @client.event
 async def on_message(message):
