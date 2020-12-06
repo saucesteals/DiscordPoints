@@ -5,17 +5,17 @@ Instantly reward your members with points for posting in specific channels!
 
 1. Download Python from [https://www.python.org/downloads/](https://www.python.org/downloads/)
 2. Create a bot at [https://discord.com/developers/applications/](https://discord.com/developers/applications/) (Make sure you enable all intents)
-2. Clone the repo
+3. Clone the repo
    ```sh
    git clone https://github.com/saucesteals/DiscordPoints.git
    ```
-3. Install requirements
+4. Install requirements
    ```sh
    pip install -r requirements.txt
    ```
-4. Fill in the template in `env.example`
-5. Rename `env.example` to `.env`
-5. Start it!
+5. Fill in the template in `env.example`
+6. Rename `env.example` to `.env`
+7. Start it!
    ```sh
    python/python3 main.py
    ```
