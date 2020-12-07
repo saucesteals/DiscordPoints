@@ -5,6 +5,8 @@ from discord.ext import commands
 import asyncio
 from helpers import *
 import os
+import re
+import aiohttp
 from dotenv import load_dotenv
 os.system("")
 load_dotenv()
@@ -15,7 +17,11 @@ client = commands.Bot(command_prefix=os.getenv("PREFIX"), intents=discord.Intent
 client.channels = [int(channel) for channel in os.getenv("CHANNEL_IDS").split(",")]
 client.color = os.getenv("EMBED_COLOR")
 client.color = int(client.color) if client.color.isdigit() else client.color
+client.defaultpoints = int(os.getenv("DEFAULT_POINTS"))
 client.onlyimages = True if os.getenv("ONLY_IMAGES").lower() == "true" else False
+client.twitter_state = True if os.getenv("TWITTER_STATE").lower() == "true" else False
+client.twitterchannel = None
+client.twitterhandle = None 
 
 ## Points System Setup ##
 PointsSystem = PointsSystem.Points(client)
@@ -28,8 +34,14 @@ async def on_ready():
     print(f"{OKGREEN}Cleansed all data!{ENDC}")
 
     client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
-    
 
+    if client.twitter_state:
+        client.twitterchannel = client.get_channel(int(os.getenv("TWITTER_CHANNEL_ID")))
+        client.twitter_points = int(os.getenv("TWITTER_POINTS"))
+        client.twitterhandle = os.getenv("TWITTER_HANDLE")
+        if "@" in client.twitterhandle:
+            client.twitterhandle = client.twitterhandle.replace('@', '')
+        
 @client.event
 async def on_member_remove(member):
     PointsSystem.remove_user(member)
@@ -41,16 +53,34 @@ async def log(message:str):
 @client.event
 async def on_message(message):
     if message.guild is not None:
+        amount = 0
+
+        # Default Channel Points
         if message.channel.id in client.channels:
             
             if client.onlyimages:
                 if message.attachments:
-                    amount = len(message.attachments)
-                    PointsSystem.add_points(message.author, amount=amount)
-                    await log(f"Added {amount} point{'s' if amount != 1 else ''} to {str(message.author)} ({message.author.mention})")
+                    amount = client.defaultpoints * len(message.attachments)
+
             else:
-                PointsSystem.add_points(message.author)
-                await log(f"Added 1 point to {str(message.author)} ({message.author.mention})")
+                amount = client.defaultpoints
+                
+        # Twitter Points
+        if client.twitter_state and client.twitterchannel and client.twitterhandle:
+
+            async with aiohttp.ClientSession() as session:
+                for link in re.findall(r"twitter\.com\/.+?\/status.\d+", message.content):
+
+                    async with session.get("https://" + link,headers={'user-agent':"Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"}) as resp:
+                        
+                        if resp.status == 200:
+                            tweet_content = (await resp.text()).split('og:description" content="“')[1].split('”">')[0]
+                            if "@" + client.twitterhandle in tweet_content:
+                                amount += client.twitter_points
+
+        if amount != 0:
+            PointsSystem.add_points(message.author, amount)
+            await log(f"Added {amount} point{'s' if amount != 1 else ''} to {str(message.author)} ({message.author.mention})")
 
     await client.process_commands(message)
 
