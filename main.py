@@ -14,14 +14,14 @@ load_dotenv()
 
 ## Client Setup ##
 client = commands.Bot(command_prefix=os.getenv("PREFIX"), intents=discord.Intents.all())
-client.channels = [int(channel) for channel in os.getenv("CHANNEL_IDS").split(",")]
-client.color = os.getenv("EMBED_COLOR")
-client.color = int(client.color) if client.color.isdigit() else client.color
-client.defaultpoints = int(os.getenv("DEFAULT_POINTS"))
-client.onlyimages = True if os.getenv("ONLY_IMAGES").lower() == "true" else False
+client.channels = [int(channel.strip()) for channel in os.getenv("CHANNEL_IDS").split(",")]
+client.color = int(os.getenv("EMBED_COLOR"))
+client.default_points = int(os.getenv("DEFAULT_POINTS"))
+client.only_images = True if os.getenv("ONLY_IMAGES").lower() == "true" else False
+
 client.twitter_state = True if os.getenv("TWITTER_STATE").lower() == "true" else False
-client.twitterchannel = None
-client.twitterhandle = None 
+client.twitter_channels = None
+client.twitter_handle = None 
 
 ## Points System Setup ##
 PointsSystem = PointsSystem.Points(client)
@@ -36,11 +36,11 @@ async def on_ready():
     client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
 
     if client.twitter_state:
-        client.twitterchannel = client.get_channel(int(os.getenv("TWITTER_CHANNEL_ID")))
+        client.twitter_channels = client.get_channel([int(channel.strip()) for channel in os.getenv("TWITTER_CHANNEL_IDS").split(",")])
         client.twitter_points = int(os.getenv("TWITTER_POINTS"))
-        client.twitterhandle = os.getenv("TWITTER_HANDLE").lower()
-        if "@" in client.twitterhandle:
-            client.twitterhandle = client.twitterhandle.replace('@', '')
+        client.twitter_handle = os.getenv("TWITTER_HANDLE").lower()
+        if "@" in client.twitter_handle:
+            client.twitter_handle = client.twitter_handle.replace('@', '')
         
 @client.event
 async def on_member_remove(member):
@@ -58,24 +58,24 @@ async def on_message(message):
         # Default Channel Points
         if message.channel.id in client.channels:
             
-            if client.onlyimages:
+            if client.only_images:
                 if message.attachments:
-                    amount = client.defaultpoints * len(message.attachments)
+                    amount = client.default_points * len(message.attachments)
 
             else:
-                amount = client.defaultpoints
+                amount = client.default_points
                 
         # Twitter Points
-        if client.twitter_state and client.twitterchannel and client.twitterhandle:
+        if client.twitter_state and client.twitter_channels and client.twitter_handle and message.channel.id in client.twitter_channels:
 
             async with aiohttp.ClientSession() as session:
-                for link in re.findall(r"twitter\.com\/.+?\/status.\d+", message.content):
+                for link in re.findall(r"twitter\.com\/.+?\/status\/\d+", message.content):
 
                     async with session.get("https://" + link,headers={'user-agent':"Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"}) as resp:
                         
                         if resp.status == 200:
                             tweet_content = (await resp.text()).split('og:description" content="“')[1].split('”">')[0]
-                            if "@" + client.twitterhandle in tweet_content.lower():
+                            if "@" + client.twitter_handle in tweet_content.lower():
                                 amount += client.twitter_points
 
         if amount != 0:
