@@ -81,7 +81,7 @@ async def on_message(message):
         if amount != 0:
             PointsSystem.add_points(message.author, amount)
             await log(f"Added {amount} point{'s' if amount != 1 else ''} to {str(message.author)} ({message.author.mention})")
-            await message.add_reaction(check_mark)
+            await message.add_reaction(check_mark_unicode)
 
     await client.process_commands(message)
 

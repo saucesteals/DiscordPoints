@@ -1,4 +1,5 @@
 check_mark = ":white_check_mark:"
+check_mark_unicode = u"\u2705"
 x_mark = ":x:"
 popper = ":tada:"
 pencil = ":pencil:"
