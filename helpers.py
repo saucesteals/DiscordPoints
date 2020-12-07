@@ -1,6 +1,7 @@
 check_mark = ":white_check_mark:"
 x_mark = ":x:"
 popper = ":tada:"
+pencil = ":pencil:"
 OKGREEN = '\033[92m'
 OKCYAN = '\033[96m'
 WHITE = '\033[37m'

@@ -31,17 +31,25 @@ async def on_ready():
 @client.event
 async def on_member_remove(member):
     PointsSystem.remove_user(member)
+    client.log_channel = client.get_channel(os.getenv("LOGS_CHANNEL_ID"))
+
+async def log(message:str):
+    await client.log_channel.send(embed=discord.Embed(color=client.color, description=f"{pencil} {message}"))
 
 @client.event
 async def on_message(message):
     if message.guild is not None:
         if message.channel.id in client.channels:
+            
             if client.onlyimages:
-                for _ in message.attachments:
-                    PointsSystem.add_points(message.author)
+                if message.attachments:
+                    amount = len(message.attachments)
+                    PointsSystem.add_points(message.author, amount=amount)
+                    await log(f"Added {amount} point{'s' if amount != 1 else ''} to {message.author.mention}")
             else:
                 PointsSystem.add_points(message.author)
-
+                await log(f"Added 1 point to {message.author.mention}")
+                
     await client.process_commands(message)
 
 
@@ -73,7 +81,7 @@ async def reset(ctx):
         PointsSystem.reset_guild(ctx.guild)
         return await ctx.send(embed=discord.Embed(color=client.color, description=f"{check_mark} Successfully reset your server!"))
 
-    return await ctx.send(embed=discord.Embed(color=client.color, description=f"{check_mark} Successfully canncelled the reset!"))
+    return await ctx.send(embed=discord.Embed(color=client.color, description=f"{check_mark} Successfully cancelled the reset!"))
 
 
 @client.command()
