@@ -31,9 +31,10 @@ async def on_ready():
 @client.event
 async def on_member_remove(member):
     PointsSystem.remove_user(member)
-    client.log_channel = client.get_channel(os.getenv("LOGS_CHANNEL_ID"))
+    client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
 
 async def log(message:str):
+    print(YELLOW + message + ENDC)
     await client.log_channel.send(embed=discord.Embed(color=client.color, description=f"{pencil} {message}"))
 
 @client.event
@@ -49,7 +50,7 @@ async def on_message(message):
             else:
                 PointsSystem.add_points(message.author)
                 await log(f"Added 1 point to {message.author.mention}")
-                
+
     await client.process_commands(message)
 
 
