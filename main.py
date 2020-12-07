@@ -36,7 +36,7 @@ async def on_ready():
     client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
 
     if client.twitter_state:
-        client.twitter_channels = client.get_channel([int(channel.strip()) for channel in os.getenv("TWITTER_CHANNEL_IDS").split(",")])
+        client.twitter_channels = [int(channel.strip()) for channel in os.getenv("TWITTER_CHANNEL_IDS").split(",")]
         client.twitter_points = int(os.getenv("TWITTER_POINTS"))
         client.twitter_handle = os.getenv("TWITTER_HANDLE").lower()
         if "@" in client.twitter_handle:
