@@ -38,7 +38,7 @@ async def on_ready():
     if client.twitter_state:
         client.twitterchannel = client.get_channel(int(os.getenv("TWITTER_CHANNEL_ID")))
         client.twitter_points = int(os.getenv("TWITTER_POINTS"))
-        client.twitterhandle = os.getenv("TWITTER_HANDLE")
+        client.twitterhandle = os.getenv("TWITTER_HANDLE").lower()
         if "@" in client.twitterhandle:
             client.twitterhandle = client.twitterhandle.replace('@', '')
         
@@ -75,7 +75,7 @@ async def on_message(message):
                         
                         if resp.status == 200:
                             tweet_content = (await resp.text()).split('og:description" content="“')[1].split('”">')[0]
-                            if "@" + client.twitterhandle in tweet_content:
+                            if "@" + client.twitterhandle in tweet_content.lower():
                                 amount += client.twitter_points
 
         if amount != 0:
