@@ -47,10 +47,10 @@ async def on_message(message):
                 if message.attachments:
                     amount = len(message.attachments)
                     PointsSystem.add_points(message.author, amount=amount)
-                    await log(f"Added {amount} point{'s' if amount != 1 else ''} to {message.author.mention}")
+                    await log(f"Added {amount} point{'s' if amount != 1 else ''} to {str(message.author)} ({message.author.mention})")
             else:
                 PointsSystem.add_points(message.author)
-                await log(f"Added 1 point to {message.author.mention}")
+                await log(f"Added 1 point to {str(message.author)} ({message.author.mention})")
 
     await client.process_commands(message)
 
