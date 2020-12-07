@@ -26,12 +26,13 @@ async def on_ready():
     print(f"Invite link:{ENDC} {UNDERLINE}https://discord.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8{ENDC}\n")
     PointsSystem.cleanse_data()
     print(f"{OKGREEN}Cleansed all data!{ENDC}")
+
+    client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
     
 
 @client.event
 async def on_member_remove(member):
     PointsSystem.remove_user(member)
-    client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
 
 async def log(message:str):
     print(YELLOW + message + ENDC)
