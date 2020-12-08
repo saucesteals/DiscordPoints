@@ -11,19 +11,7 @@ from dotenv import load_dotenv
 os.system("")
 load_dotenv()
 
-
-## Client Setup ##
 client = commands.Bot(command_prefix=os.getenv("PREFIX"), intents=discord.Intents.all())
-client.channels = [int(channel.strip()) for channel in os.getenv("CHANNEL_IDS").split(",")]
-client.color = int(os.getenv("EMBED_COLOR"))
-client.default_points = int(os.getenv("DEFAULT_POINTS"))
-client.only_images = True if os.getenv("ONLY_IMAGES").lower() == "true" else False
-
-client.twitter_state = True if os.getenv("TWITTER_STATE").lower() == "true" else False
-client.twitter_channels = None
-client.twitter_handle = None 
-
-## Points System Setup ##
 PointsSystem = PointsSystem.Points(client)
 
 @client.event
@@ -32,6 +20,15 @@ async def on_ready():
     print(f"Invite link:{ENDC} {UNDERLINE}https://discord.com/oauth2/authorize?client_id={client.user.id}&scope=bot&permissions=8{ENDC}\n")
     PointsSystem.cleanse_data()
     print(f"{OKGREEN}Cleansed all data!{ENDC}")
+
+    client.channels = [int(channel.strip()) for channel in os.getenv("CHANNEL_IDS").split(",")]
+    client.color = int(os.getenv("EMBED_COLOR"))
+    client.default_points = int(os.getenv("DEFAULT_POINTS"))
+    client.only_images = True if os.getenv("ONLY_IMAGES").lower() == "true" else False
+
+    client.twitter_state = True if os.getenv("TWITTER_STATE").lower() == "true" else False
+    client.twitter_channels = None
+    client.twitter_handle = None 
 
     client.log_channel = client.get_channel(int(os.getenv("LOGS_CHANNEL_ID")))
 
@@ -52,7 +49,7 @@ async def log(message:str):
 
 @client.event
 async def on_message(message):
-    if message.guild is not None:
+    if client.is_ready() and message.guild is not None:
         amount = 0
 
         # Default Channel Points
@@ -119,12 +116,14 @@ async def reset(ctx):
 
 @client.command()
 @commands.check(is_admin)
-async def raffle(ctx):
-    winner = PointsSystem.random_raffle(ctx.guild)
-    if winner is None:
-        return await ctx.send(embed=discord.Embed(color=client.color, description=f"{x_mark} Couldn't determine a winner!"))
+async def raffle(ctx, count:int, *, itemName:str):
+    for _ in range(count):
+        winner = PointsSystem.random_raffle(ctx.guild)
+        if winner is None:
+            await ctx.send(embed=discord.Embed(color=client.color, description=f"{x_mark} Couldn't determine a winner for {itemName}!"))
+            continue
 
-    return await ctx.send(embed=discord.Embed(color=client.color, description=f"{popper} {winner.mention} is the winner!"))
+        await ctx.send(embed=discord.Embed(color=client.color, description=f"{popper} {winner.mention} has won {itemName}!"))
 
 
 @client.command()
@@ -134,7 +133,7 @@ async def points(ctx, member: discord.Member = None):
 
 @client.command()
 async def leaderboard(ctx):
-    return await ctx.send(embed=PointsSystem.get_leaderboard(ctx.guild))
+    return await ctx.send(embed=PointsSystem.get_leaderboard(ctx.author))
 
 
 @client.event

@@ -83,21 +83,26 @@ class Points:
         embed.set_footer(icon_url=member.guild.icon_url_as(format="png"), text="Points System")
         return embed
     
-    def get_leaderboard(self, guild:discord.Guild) -> discord.Embed:
-        self.__check_db__(guild=guild)
+    def get_leaderboard(self, member:discord.Member) -> discord.Embed:
+        self.__check_db__(member)
+        guild = member.guild
         members = self.get_members(guild)
         members_points = {}
-        for member in members:
-            members_points[str(guild.get_member(int(member)))] = members[member]["points"]
-
+        for _member in members:
+            members_points[str(guild.get_member(int(_member)))] = members[_member]["points"]
+    
         embed = discord.Embed(color=self.client.color, title=guild.name, timestamp=datetime.utcnow())
         embed.set_thumbnail(url=guild.icon_url_as(format="png"))
         embed.set_footer(icon_url=guild.icon_url_as(format="png"), text="Points System")
 
+        count = 1
         for elem in sorted(members_points.items(), reverse=True,  key=lambda x: x[1]):
-            embed.add_field(name=elem[0], value=f"Points: {elem[1]}", inline=False)
-            if len(embed.fields) == 10:
-                break
+            if elem[0] == str(member):
+                embed.add_field(name=f"{count}. {elem[0]}", value=f"**Points: {elem[1]}**", inline=False)
+            elif count <= 10:
+                embed.add_field(name=f"{count}. {elem[0]}", value=f"Points: {elem[1]}", inline=False)
+            count += 1
+        
 
         return embed
             
