@@ -125,8 +125,8 @@ class Points:
 
     def reset_guild(self, guild:discord.Guild):
         self.__check_db__(guild=guild)
-        for member in self.data["guilds"][str(member.guild.id)]["members"]:
-            self.data["guilds"][str(member.guild.id)]["members"][member]["points"] = 0
+        for member in self.data["guilds"][str(guild.id)]["members"]:
+            self.data["guilds"][str(guild.id)]["members"][member]["points"] = 0
 
     def cleanse_data(self):
         for guild_id in self.data["guilds"]:
